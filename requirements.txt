@@ -3,6 +3,7 @@ onnxruntime
 numpy
 pillow
 pandas
-scikit-learn
-gdown
 altair
+scikit-learn
+matplotlib
+seaborn
