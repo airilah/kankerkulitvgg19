@@ -88,7 +88,7 @@ if menu == "Ringkasan Penelitian":
     pencahayaan, dan jenis lesi kulit. Hasil akhir dari kumpulan data ini berjumlah 10015 gambar dermatoskopik yang berguna untuk set pelatihan dengan tujuan pembelajaran mesin. Komponen yang dataset ini berisi folder HAM10000_images_part_1
     dengan menampung 5000 gambar dermatoskopik dan HAM10000_images_part_2 dengan menampung 5015 gambar dermatoskopik. Ukuran gambar dari dataset ini yaitu 600x450 piksel dengan format gambar JPG.
     ''')
-    image_path = '/content/drive/MyDrive/skripsi/dataset.png'
+    image_path = 'dataset.png'
     st.image(Image.open(image_path), caption='Jumlah Data Dataset', width=800)
     st.markdown('''
     Untuk kelas diagnosis dari dataset ini terdiri dari 7 kelas yaitu:
@@ -100,15 +100,15 @@ if menu == "Ringkasan Penelitian":
     6. Lesi Vaskular (vasc): Kondisi yang melibatkan pembuluh darah.
     7. Dermatofibroma (df): Tumor jinak kecil di kulit.
     ''')
-    image_path = '/content/drive/MyDrive/skripsi/citra.png'
+    image_path = 'citra.png'
     st.image(Image.open(image_path), caption='dataset 7 kelas', width=800)
 
     st.subheader("Rancangan Sistem")
-    image_path = '/content/drive/MyDrive/skripsi/rancangan sistem.png'
+    image_path = 'rancangan sistem.png'
     st.image(Image.open(image_path), caption='Rancangan Sistem', width=600)
 
     st.subheader("Arsitektur VGG19")
-    image_path = '/content/drive/MyDrive/skripsi/vgg19.png'
+    image_path = 'vgg19.png'
     st.image(Image.open(image_path), caption='Arsitektur VGG19', width=800)
     st.markdown('''
     Visual Geometry Group 19 atau VGG19 adalah salah satu arsitektur jaringan saraf konvolusi (CNN) yang diperkenalkan oleh Simonyan dan Zisserman dalam makalah berjudul
@@ -118,7 +118,7 @@ if menu == "Ringkasan Penelitian":
     ''')
 
     st.subheader("VGG19 Fine-tuning")
-    image_path = '/content/drive/MyDrive/skripsi/fine-tuning.png'
+    image_path = 'fine-tuning.png'
     st.image(Image.open(image_path), caption='VGG19 Fine-tuning', width=800)
     st.markdown('''
     penerapan fine-tuning dari arsitektur VGG19 yang dimana pada 3 layer awal dilakukan pembekuan sehingga menyisahkan sejumlah trainable layer untuk pelatihan lagi.
@@ -794,10 +794,10 @@ elif menu == "Program Penelitian":
     plt.show()
     ''', language='python')
     st.header("Output:")
-    image_path = '/content/drive/MyDrive/skripsi/roc 1.png'
+    image_path = 'roc 1.png'
     st.image(Image.open(image_path), caption='Validasi Akurasi Setiap Fold', width=800)
 
-    image_path = '/content/drive/MyDrive/skripsi/roc 2.png'
+    image_path = 'roc 2.png'
     st.image(Image.open(image_path), caption='Validasi Loss Setiap Fold', width=800)
 
 
@@ -878,7 +878,7 @@ elif menu == "Program Penelitian":
       macro avg       0.97      0.97      0.97      9387
     weighted avg       0.97      0.97      0.97      9387
     """, language='text')
-    image_path = '/content/drive/MyDrive/skripsi/confusion.png'
+    image_path = 'confusion.png'
     st.image(Image.open(image_path), caption='Confusion Matrix', width=800)
 
     st.code("""
@@ -932,7 +932,7 @@ elif menu == "Program Penelitian":
     plt.show()
     """)
     st.header("Output:")
-    image_path = '/content/drive/MyDrive/skripsi/roc.png'
+    image_path = 'roc.png'
     st.image(Image.open(image_path), caption='Validasi Akurasi Setiap Fold', width=800)
 
 # --- 3. Prediksi Gambar ---
