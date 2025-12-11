@@ -7,7 +7,7 @@ from collections import Counter
 from sklearn.model_selection import train_test_split
 from PIL import Image
 import altair as alt
-import onnxruntime as ort 
+import onnxruntime as ort
 
 # Konfigurasi Streamlit
 st.set_page_config(page_title="Klasifikasi Kanker Kulit", layout="wide")
@@ -937,7 +937,7 @@ elif menu == "Program Penelitian":
 
 # --- 3. Prediksi Gambar ---
 elif menu == "Prediksi Gambar":
-    st.title("🩺 Klasifikasi Kanker Kulit (ONNX) - VGG19")
+    st.title("🩺 Klasifikasi Kanker Kulit dengan VGG19")
     st.markdown("Upload gambar kulit berformat **.jpg** untuk prediksi.")
 
     class_labels = [
@@ -950,81 +950,51 @@ elif menu == "Prediksi Gambar":
         'vascular lesions',
     ]
 
-    # Cek keberadaan model ONNX
-    onnx_path = "model.onnx"  # ganti path jika kamu taruh di folder lain
-    try:
-        ort_session = ort.InferenceSession(onnx_path)
-    except Exception as e:
-        st.error(f"Model ONNX tidak ditemukan atau gagal dimuat: {e}")
-        st.info("Pastikan file model.onnx berada di folder project dan sudah di-push ke repository.")
-        st.stop()
-
-    uploaded_file = st.file_uploader("📁 Unggah Gambar", type=["jpg", "jpeg", "png"])
-
-    def preprocess_vgg(img: Image.Image):
-        """
-        Preprocessing mengikuti konvensi VGG:
-        - Resize ke 224x224
-        - Convert ke array float32
-        - RGB -> BGR
-        - Substract ImageNet mean (per channel)
-        - Output shape: (1, 3, 224, 224) atau (1, 224, 224, 3) tergantung input model ONNX
-        """
-        img = img.resize((224, 224))
-        arr = np.array(img).astype(np.float32)
-        arr = arr[:, :, ::-1]
-
-        # Subtract mean (ImageNet)
-        mean = np.array([103.939, 116.779, 123.68], dtype=np.float32)
-        arr -= mean
-
-        # Expand dims to (1,224,224,3)
-        arr = np.expand_dims(arr, axis=0).astype(np.float32)
-        return arr
+    uploaded_file = st.file_uploader("📁 Unggah Gambar", type=["jpg"])
 
     if uploaded_file is not None:
         try:
-            # Load and preprocess image
+            # Load model
+            model = load_model('best_model_fold_5.keras')
+
+            # Preprocessing image
             img = Image.open(uploaded_file).convert("RGB")
-            st.image(img, caption="🖼 Gambar yang Diupload", use_column_width=True)
+            img_resized = img.resize((64, 64))
+            img_array = image.img_to_array(img_resized)
+            img_array = np.expand_dims(img_array, axis=0)
+            img_array = preprocess_input(img_array)
 
-            input_arr = preprocess_vgg(img)
+            # Prediction
+            prediction = model.predict(img_array)
+            predicted_class = np.argmax(prediction)
+            confidence = prediction[0][predicted_class]
 
-            # Dapatkan nama input model ONNX (biasanya salah satu)
-            input_name = ort_session.get_inputs()[0].name
+            # Tampilkan gambar
+            st.image(img, caption="🖼 Gambar yang Diupload", width=800)
 
-            # Jalankan inference
-            outputs = ort_session.run(None, {input_name: input_arr})
-            # outputs biasanya list; ambil array output pertama
-            prediction = np.array(outputs[0])
-
-            # Jika output shape (1, N)
-            if prediction.ndim == 2:
-                prediction = prediction[0]
-
-            predicted_class = int(np.argmax(prediction))
-            confidence = float(prediction[predicted_class])
-
-            # Tampilkan hasil
+            # Tampilkan hasil prediksi
             st.header("📌 Hasil Prediksi:")
             st.write(f"**Kelas:** {class_labels[predicted_class]}")
             st.write(f"**Tingkat Keyakinan:** {confidence * 100:.2f}%")
 
+            # Buat DataFrame agar urutan label konsisten
             df = pd.DataFrame({
                 "Kelas": class_labels,
-                "Probabilitas": prediction
+                "Probabilitas": prediction[0]
             })
 
-            df_sorted = df.sort_values("Probabilitas", ascending=False)
-
+            # Visualisasi dengan Altair
             st.header("📊 Probabilitas Tiap Kelas:")
-            chart = alt.Chart(df_sorted).mark_bar().encode(
-                x=alt.X("Kelas:N", sort=df_sorted["Kelas"].tolist(), axis=alt.Axis(labelAngle=-45)),
-                y=alt.Y("Probabilitas:Q", scale=alt.Scale(domain=[0, 1])),
-                tooltip=[alt.Tooltip("Kelas:N"), alt.Tooltip("Probabilitas:Q", format=".4f")]
-            ).properties(width=700, height=400)
+            chart = alt.Chart(df).mark_bar(color="skyblue").encode(
+                x=alt.X("Kelas", sort=None, axis=alt.Axis(labelAngle=0)),
+                y=alt.Y("Probabilitas", scale=alt.Scale(domain=[0, 1])),
+                tooltip=["Kelas", alt.Tooltip("Probabilitas", format=".2f")]
+            ).properties(
+                width=700,
+                height=400
+            )
 
             st.altair_chart(chart, use_container_width=True)
 
         except Exception as e:
-            st.error(f"❌ Terjadi kesalahan saat prediksi: {e}")
+            st.error(f"❌ Terjadi kesalahan: {e}")
